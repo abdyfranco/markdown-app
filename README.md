@@ -4,7 +4,7 @@
 
 <h1 align="center">Markdown</h1>
 
-<p align="center">A native Markdown reader and editor for macOS Tahoe, with a Liquid Glass design and QuickLook previews.</p>
+<p align="center">A native Markdown reader and editor for macOS, with a Liquid Glass design.</p>
 
 ## Features
 
