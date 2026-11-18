@@ -111,6 +111,24 @@ enum EditorTests {
               && !Updater.isTrusted(URL(string: "http://example.com/a.dmg")!)
               && Updater.isTrusted(URL(string: "http://127.0.0.1:8000/a.dmg")!))
 
+        print("Local resources")
+        let base = LocalResources.baseURL(for: URL(fileURLWithPath: "/Volumes/My Disk/Notes"))
+        check("base URL", base.absoluteString == "mdpreview://local/Volumes/My%20Disk/Notes/", base.absoluteString)
+        let image = URL(string: "img/a%20b.png", relativeTo: base)!.absoluteURL
+        check("relative image maps to file", LocalResources.fileURL(for: image)?.path == "/Volumes/My Disk/Notes/img/a b.png",
+              String(describing: LocalResources.fileURL(for: image)?.path))
+        let anchor = LocalResources.fileURL(for: URL(string: "#intro", relativeTo: base)!.absoluteURL)
+        check("fragment kept", anchor?.fragment == "intro" && anchor?.path == "/Volumes/My Disk/Notes",
+              String(describing: anchor))
+        check("other schemes ignored", LocalResources.fileURL(for: URL(string: "https://a.b/c.png")!) == nil)
+        let servable = ["png", "svg", "jpg", "gif", "mp4", "css", "woff2", "ttf"].allSatisfy {
+            LocalResources.mimeType(forExtension: $0) != nil
+        }
+        let refused = ["md", "txt", "swift", "plist", "html", ""].allSatisfy {
+            LocalResources.mimeType(forExtension: $0) == nil
+        }
+        check("serves media, not documents", servable && refused)
+
         print(failures == 0 ? "All tests passed" : "\(failures) test(s) failed")
         exit(failures == 0 ? 0 : 1)
     }

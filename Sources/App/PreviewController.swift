@@ -7,7 +7,7 @@ import WebKit
 final class PreviewController: NSObject, WKNavigationDelegate {
     let webView: WKWebView
 
-    private let shellURL: URL
+    /// The document's folder; relative links and images resolve against it.
     private var baseURL: URL?
     private var currentHTML = ""
     private var isLoaded = false
@@ -30,14 +30,12 @@ final class PreviewController: NSObject, WKNavigationDelegate {
 
     init(baseURL: URL?) {
         self.baseURL = baseURL
-        let directory = FileManager.default.temporaryDirectory
-            .appendingPathComponent("MarkdownPreview", isDirectory: true)
-        try? FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
-        shellURL = directory.appendingPathComponent(UUID().uuidString + ".html")
 
         let configuration = WKWebViewConfiguration()
         // Documents may contain raw HTML: never run scripts from content.
         configuration.defaultWebpagePreferences.allowsContentJavaScript = false
+        // Files next to the document are served by the app, so they also load from external disks.
+        LocalResources.install(in: configuration)
         webView = WKWebView(frame: .zero, configuration: configuration)
         super.init()
 
@@ -49,21 +47,11 @@ final class PreviewController: NSObject, WKNavigationDelegate {
         loadShell()
     }
 
-    isolated deinit {
-        try? FileManager.default.removeItem(at: shellURL)
-    }
-
     private func loadShell() {
         isLoaded = false
-        let base = baseURL ?? FileManager.default.homeDirectoryForCurrentUser
+        let base = LocalResources.baseURL(for: baseURL)
         let page = PreviewTheme.page(body: currentHTML, baseURL: base, extraCSS: Self.appCSS)
-        do {
-            try page.write(to: shellURL, atomically: true, encoding: .utf8)
-            // Read access lets relative images next to the document load.
-            webView.loadFileURL(shellURL, allowingReadAccessTo: URL(fileURLWithPath: "/"))
-        } catch {
-            webView.loadHTMLString(page, baseURL: base)
-        }
+        webView.loadHTMLString(page, baseURL: base)
     }
 
     // MARK: Content
@@ -152,15 +140,11 @@ final class PreviewController: NSObject, WKNavigationDelegate {
 
     func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction) async -> WKNavigationActionPolicy {
         guard let url = navigationAction.request.url else { return .cancel }
-
-        if url.isFileURL, url.standardizedFileURL.path == shellURL.standardizedFileURL.path,
-           navigationAction.navigationType != .linkActivated {
-            return .allow
-        }
         guard navigationAction.navigationType == .linkActivated else {
-            return url.scheme == "about" ? .allow : .cancel
+            // Only the page itself loads; nothing navigates it elsewhere.
+            return url.scheme == LocalResources.scheme || url.scheme == "about" ? .allow : .cancel
         }
-        open(url)
+        open(LocalResources.fileURL(for: url) ?? url)
         return .cancel
     }
 
@@ -168,7 +152,7 @@ final class PreviewController: NSObject, WKNavigationDelegate {
         if url.isFileURL {
             let base = (baseURL ?? FileManager.default.homeDirectoryForCurrentUser).standardizedFileURL.path
             let path = url.standardizedFileURL.path
-            if let fragment = url.fragment(percentEncoded: false), path == base || path == shellURL.path {
+            if let fragment = url.fragment(percentEncoded: false), path == base {
                 run("var t=document.getElementById(\(Self.json(fragment)));if(t){t.scrollIntoView({behavior:'smooth',block:'start'});}")
                 return
             }

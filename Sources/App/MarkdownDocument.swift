@@ -116,17 +116,14 @@ final class MarkdownDocument: NSDocument {
                 info.dictionary()[NSPrintInfo.AttributeKey.jobSavingURL] = url
             }
 
-            let html = PreviewTheme.page(
-                body: MarkdownRenderer.html(from: model.text),
-                title: baseName,
-                baseURL: fileURL?.deletingLastPathComponent()
-            )
+            let base = LocalResources.baseURL(for: fileURL?.deletingLastPathComponent())
+            let html = PreviewTheme.page(body: MarkdownRenderer.html(from: model.text), title: baseName, baseURL: base)
             let renderer = PrintRenderer(width: info.paperSize.width - info.leftMargin - info.rightMargin)
             activeRenderer = renderer
 
             Task { @MainActor in
                 do {
-                    try await renderer.load(html: html)
+                    try await renderer.load(html: html, baseURL: base)
                 } catch {
                     self.finishPrinting()
                     self.presentError(error)

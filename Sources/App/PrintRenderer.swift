@@ -7,13 +7,13 @@ import WebKit
 final class PrintRenderer: NSObject, WKNavigationDelegate {
     let webView: WKWebView
     private let window: NSWindow
-    private let pageURL: URL
     private var loadContinuation: CheckedContinuation<Void, Error>?
 
     init(width: CGFloat) {
         let configuration = WKWebViewConfiguration()
         configuration.defaultWebpagePreferences.allowsContentJavaScript = false
         configuration.preferences.shouldPrintBackgrounds = true   // code blocks, checked boxes
+        LocalResources.install(in: configuration)                  // images next to the document
         let frame = NSRect(x: 0, y: 0, width: max(width, 320), height: 1000)
         webView = WKWebView(frame: frame, configuration: configuration)
         webView.appearance = NSAppearance(named: .aqua)
@@ -23,21 +23,16 @@ final class PrintRenderer: NSObject, WKNavigationDelegate {
         window.appearance = NSAppearance(named: .aqua)
         window.contentView = webView
 
-        let directory = FileManager.default.temporaryDirectory
-            .appendingPathComponent("MarkdownPreview", isDirectory: true)
-        try? FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
-        pageURL = directory.appendingPathComponent("print-\(UUID().uuidString).html")
-
         super.init()
         webView.navigationDelegate = self
     }
 
     /// Loads the page and waits until it (and its images) finished loading.
-    func load(html: String) async throws {
-        try html.write(to: pageURL, atomically: true, encoding: .utf8)
+    /// `baseURL` should come from `LocalResources.baseURL(for:)`.
+    func load(html: String, baseURL: URL) async throws {
         try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
             loadContinuation = continuation
-            webView.loadFileURL(pageURL, allowingReadAccessTo: URL(fileURLWithPath: "/"))
+            webView.loadHTMLString(html, baseURL: baseURL)
         }
     }
 
@@ -52,7 +47,6 @@ final class PrintRenderer: NSObject, WKNavigationDelegate {
     func cleanUp() {
         webView.stopLoading()
         window.contentView = nil
-        try? FileManager.default.removeItem(at: pageURL)
     }
 
     // MARK: WKNavigationDelegate
