@@ -3,6 +3,7 @@
 #
 #   Support/AppIcon.icon   the source of truth (open it in Icon Composer)
 #   Support/AppIcon.icns   static fallback for builds without Xcode (Default appearance)
+#   Support/AppIcon.png    256 px light icon shown at the top of the README
 #   build/icon-previews/   a PNG of each appearance, for review
 #
 # Layer artwork comes from Tools/MakeIconLayers.swift; pass --layers to regenerate it.
@@ -53,4 +54,5 @@ for size in 16 32 128 256 512; do
   sips -z $((size * 2)) $((size * 2)) "$WORK/icon_1024.png" --out "$ICONSET/icon_${size}x${size}@2x.png" >/dev/null
 done
 iconutil -c icns "$ICONSET" -o Support/AppIcon.icns
-echo "✓ Support/AppIcon.icns updated; previews in $PREVIEWS"
+sips -z 256 256 "$WORK/icon_1024.png" --out Support/AppIcon.png >/dev/null
+echo "✓ Support/AppIcon.icns and AppIcon.png updated; previews in $PREVIEWS"
