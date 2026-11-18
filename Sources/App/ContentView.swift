@@ -66,22 +66,27 @@ private struct StatusPill: View {
     }
 
     private var label: String {
-        let f = NumberFormatter.localizedString
         if let matchCount {
             switch matchCount {
-            case 0: return "No matches"
-            case 1: return "1 match"
-            default: return "\(f(NSNumber(value: matchCount), .decimal)) matches"
+            case 0: return String(localized: "No matches")
+            case 1: return String(localized: "1 match")
+            default: return String(localized: "\(matchCount.formatted()) matches")
             }
         }
         switch style {
         case 1:
-            return "\(f(NSNumber(value: stats.characters), .decimal)) characters"
+            return stats.characters == 1
+                ? String(localized: "1 character")
+                : String(localized: "\(stats.characters.formatted()) characters")
         case 2:
-            return "\(f(NSNumber(value: stats.lines), .decimal)) \(stats.lines == 1 ? "line" : "lines")"
+            return stats.lines == 1
+                ? String(localized: "1 line")
+                : String(localized: "\(stats.lines.formatted()) lines")
         default:
-            let words = "\(f(NSNumber(value: stats.words), .decimal)) \(stats.words == 1 ? "word" : "words")"
-            return stats.words == 0 ? words : "\(words) · \(stats.readingMinutes) min read"
+            let words = stats.words == 1
+                ? String(localized: "1 word")
+                : String(localized: "\(stats.words.formatted()) words")
+            return stats.words == 0 ? words : String(localized: "\(words) · \(stats.readingMinutes) min read")
         }
     }
 }

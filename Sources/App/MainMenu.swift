@@ -22,13 +22,13 @@ enum MainMenu {
     private static let appName = "Markdown"
 
     private static func appMenu() -> NSMenu {
-        let menu = NSMenu(title: appName)
+        let menu = NSMenu(title: appName)   // the app menu shows the bundle name
         menu.addItem("About \(appName)", #selector(AppDelegate.showAbout(_:)))
         menu.addItem("Check for Updates…", #selector(Updater.checkForUpdates(_:))).target = Updater.shared
         menu.addItem(.separator())
         menu.addItem("Settings…", #selector(AppDelegate.showSettings(_:)), ",")
         menu.addItem(.separator())
-        let services = NSMenu(title: "Services")
+        let services = NSMenu(title: String(localized: "Services"))
         menu.addItem(submenu: services)
         NSApp.servicesMenu = services
         menu.addItem(.separator())
@@ -41,7 +41,7 @@ enum MainMenu {
     }
 
     private static func fileMenu() -> NSMenu {
-        let menu = NSMenu(title: "File")
+        let menu = NSMenu(title: String(localized: "File"))
         menu.addItem("New", #selector(NSDocumentController.newDocument(_:)), "n")
         menu.addItem("Open…", #selector(NSDocumentController.openDocument(_:)), "o")
         menu.addItem(.separator())
@@ -62,7 +62,7 @@ enum MainMenu {
     }
 
     private static func editMenu() -> NSMenu {
-        let menu = NSMenu(title: "Edit")
+        let menu = NSMenu(title: String(localized: "Edit"))
         menu.addItem("Undo", Selector(("undo:")), "z")
         menu.addItem("Redo", Selector(("redo:")), "z", [.command, .shift])
         menu.addItem(.separator())
@@ -74,7 +74,7 @@ enum MainMenu {
         menu.addItem("Select All", #selector(NSText.selectAll(_:)), "a")
         menu.addItem(.separator())
 
-        let find = NSMenu(title: "Find")
+        let find = NSMenu(title: String(localized: "Find"))
         typealias W = DocumentWindowController
         find.addItem("Find…", #selector(W.focusSearch(_:)), "f")
         find.addItem("Find and Replace…", #selector(NSTextView.performFindPanelAction(_:)), "f", [.command, .option], tag: 12)
@@ -84,13 +84,13 @@ enum MainMenu {
         find.addItem("Jump to Selection", #selector(NSResponder.centerSelectionInVisibleArea(_:)), "j")
         menu.addItem(submenu: find)
 
-        let spelling = NSMenu(title: "Spelling and Grammar")
+        let spelling = NSMenu(title: String(localized: "Spelling and Grammar"))
         spelling.addItem("Show Spelling and Grammar", #selector(NSText.showGuessPanel(_:)), ":")
         spelling.addItem("Check Document Now", #selector(NSText.checkSpelling(_:)), ";")
         spelling.addItem("Check Spelling While Typing", #selector(NSTextView.toggleContinuousSpellChecking(_:)))
         menu.addItem(submenu: spelling)
 
-        let transformations = NSMenu(title: "Transformations")
+        let transformations = NSMenu(title: String(localized: "Transformations"))
         transformations.addItem("Make Upper Case", #selector(NSResponder.uppercaseWord(_:)))
         transformations.addItem("Make Lower Case", #selector(NSResponder.lowercaseWord(_:)))
         transformations.addItem("Capitalize", #selector(NSResponder.capitalizeWord(_:)))
@@ -100,7 +100,7 @@ enum MainMenu {
 
     private static func formatMenu() -> NSMenu {
         typealias T = MarkdownTextView
-        let menu = NSMenu(title: "Format")
+        let menu = NSMenu(title: String(localized: "Format"))
         menu.addItem("Bold", #selector(T.mdBold(_:)), "b")
         menu.addItem("Italic", #selector(T.mdItalic(_:)), "i")
         menu.addItem("Strikethrough", #selector(T.mdStrikethrough(_:)), "x", [.command, .shift])
@@ -123,7 +123,7 @@ enum MainMenu {
 
     private static func viewMenu() -> NSMenu {
         typealias W = DocumentWindowController
-        let menu = NSMenu(title: "View")
+        let menu = NSMenu(title: String(localized: "View"))
         menu.addItem("Editor", #selector(W.showEditor(_:)), "1")
         menu.addItem("Split", #selector(W.showSplit(_:)), "2")
         menu.addItem("Preview", #selector(W.showPreview(_:)), "3")
@@ -140,7 +140,7 @@ enum MainMenu {
     }
 
     private static func windowMenu() -> NSMenu {
-        let menu = NSMenu(title: "Window")
+        let menu = NSMenu(title: String(localized: "Window"))
         menu.addItem("Minimize", #selector(NSWindow.performMiniaturize(_:)), "m")
         menu.addItem("Zoom", #selector(NSWindow.performZoom(_:)))
         menu.addItem(.separator())
@@ -149,7 +149,7 @@ enum MainMenu {
     }
 
     private static func helpMenu() -> NSMenu {
-        let menu = NSMenu(title: "Help")
+        let menu = NSMenu(title: String(localized: "Help"))
         menu.addItem("Markdown Guide", #selector(AppDelegate.showMarkdownGuide(_:)), "?")
         return menu
     }
@@ -157,9 +157,9 @@ enum MainMenu {
 
 private extension NSMenu {
     @discardableResult
-    func addItem(_ title: String, _ action: Selector?, _ key: String = "",
+    func addItem(_ title: String.LocalizationValue, _ action: Selector?, _ key: String = "",
                  _ modifiers: NSEvent.ModifierFlags = [.command], tag: Int = 0) -> NSMenuItem {
-        let item = NSMenuItem(title: title, action: action, keyEquivalent: key)
+        let item = NSMenuItem(title: String(localized: title), action: action, keyEquivalent: key)
         item.keyEquivalentModifierMask = key.isEmpty ? [] : modifiers
         item.tag = tag
         addItem(item)

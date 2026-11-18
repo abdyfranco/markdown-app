@@ -51,9 +51,9 @@ final class MarkdownTextView: NSTextView {
         backgroundColor = .textBackgroundColor
         textColor = .labelColor
         insertionPointColor = .controlAccentColor
-        setAccessibilityLabel("Markdown editor")
+        setAccessibilityLabel(String(localized: "Markdown editor"))
 
-        let placeholder = NSAttributedString(string: "Start writing…", attributes: [
+        let placeholder = NSAttributedString(string: String(localized: "Start writing…"), attributes: [
             .foregroundColor: NSColor.placeholderTextColor,
             .font: theme.base,
         ])
@@ -267,16 +267,24 @@ final class MarkdownTextView: NSTextView {
                 selecting: lines.count == 1
                     ? NSRange(location: newLocation, length: selection.length)
                     : NSRange(location: range.location, length: (replacement as NSString).length - (trailingNewline ? 1 : 0)),
-                actionName: outdent ? "Outdent" : "Indent")
+                actionName: outdent ? String(localized: "Outdent") : String(localized: "Indent"))
         return true
     }
 
     // MARK: Formatting commands
 
-    @objc func mdBold(_ sender: Any?) { toggleWrap("**", placeholder: "bold text", name: "Bold") }
-    @objc func mdItalic(_ sender: Any?) { toggleWrap("*", placeholder: "italic text", name: "Italic") }
-    @objc func mdStrikethrough(_ sender: Any?) { toggleWrap("~~", placeholder: "text", name: "Strikethrough") }
-    @objc func mdInlineCode(_ sender: Any?) { toggleWrap("`", placeholder: "code", name: "Code") }
+    @objc func mdBold(_ sender: Any?) {
+        toggleWrap("**", placeholder: String(localized: "bold text"), name: String(localized: "Bold"))
+    }
+    @objc func mdItalic(_ sender: Any?) {
+        toggleWrap("*", placeholder: String(localized: "italic text"), name: String(localized: "Italic"))
+    }
+    @objc func mdStrikethrough(_ sender: Any?) {
+        toggleWrap("~~", placeholder: String(localized: "text"), name: String(localized: "Strikethrough"))
+    }
+    @objc func mdInlineCode(_ sender: Any?) {
+        toggleWrap("`", placeholder: String(localized: "code"), name: String(localized: "Code"))
+    }
 
     @objc func mdHeading1(_ sender: Any?) { setHeading(1) }
     @objc func mdHeading2(_ sender: Any?) { setHeading(2) }
@@ -297,18 +305,22 @@ final class MarkdownTextView: NSTextView {
             return ["http", "https", "mailto"].contains(scheme.lowercased())
         }
 
+        let placeholder = String(localized: "link")
+        let actionName = String(localized: "Link")
         if isURL(selected) {
-            let text = "[link](\(selected))"
-            replace(selection, with: text, selecting: NSRange(location: selection.location + 1, length: 4), actionName: "Link")
+            let text = "[\(placeholder)](\(selected))"
+            replace(selection, with: text,
+                    selecting: NSRange(location: selection.location + 1, length: (placeholder as NSString).length),
+                    actionName: actionName)
         } else {
-            let label = selected.isEmpty ? "link" : selected
+            let label = selected.isEmpty ? placeholder : selected
             let url = isURL(clipboard) ? clipboard! : "https://"
             let text = "[\(label)](\(url))"
             let labelLength = (label as NSString).length
             let selectRange = selected.isEmpty
                 ? NSRange(location: selection.location + 1, length: labelLength)
                 : NSRange(location: selection.location + labelLength + 3, length: (url as NSString).length)
-            replace(selection, with: text, selecting: selectRange, actionName: "Link")
+            replace(selection, with: text, selecting: selectRange, actionName: actionName)
         }
     }
 
@@ -320,13 +332,13 @@ final class MarkdownTextView: NSTextView {
             let atLineStart = selection.location == 0 || ns.character(at: selection.location - 1) == 10
             let text = (atLineStart ? "" : "\n") + insertion + "\n"
             let caret = selection.location + (atLineStart ? 4 : 5)
-            replace(selection, with: text, selecting: NSRange(location: caret, length: 0), actionName: "Code Block")
+            replace(selection, with: text, selecting: NSRange(location: caret, length: 0), actionName: String(localized: "Code Block"))
         } else {
             let range = ns.lineRange(for: selection)
             var body = ns.substring(with: range)
             if !body.hasSuffix("\n") { body += "\n" }
             replace(range, with: "```\n" + body + "```\n",
-                    selecting: NSRange(location: range.location + 3, length: 0), actionName: "Code Block")
+                    selecting: NSRange(location: range.location + 3, length: 0), actionName: String(localized: "Code Block"))
         }
     }
 
@@ -337,7 +349,7 @@ final class MarkdownTextView: NSTextView {
         let text = (atLineStart ? "" : "\n") + "\n---\n\n"
         replace(selection, with: text,
                 selecting: NSRange(location: selection.location + (text as NSString).length, length: 0),
-                actionName: "Divider")
+                actionName: String(localized: "Divider"))
     }
 
     // MARK: Editing helpers
@@ -403,7 +415,7 @@ final class MarkdownTextView: NSTextView {
         let replacement = updated.joined(separator: "\n") + (trailing ? "\n" : "")
         let caret = range.location + (replacement as NSString).length - (trailing ? 1 : 0)
         replace(range, with: replacement, selecting: NSRange(location: caret, length: 0),
-                actionName: level == 0 ? "Body" : "Heading \(level)")
+                actionName: level == 0 ? String(localized: "Body") : String(localized: "Heading \(level)"))
     }
 
     enum LineKind {
@@ -411,10 +423,10 @@ final class MarkdownTextView: NSTextView {
 
         var name: String {
             switch self {
-            case .bullet: "Bulleted List"
-            case .numbered: "Numbered List"
-            case .checklist: "Checklist"
-            case .quote: "Quote"
+            case .bullet: String(localized: "Bulleted List")
+            case .numbered: String(localized: "Numbered List")
+            case .checklist: String(localized: "Checklist")
+            case .quote: String(localized: "Quote")
             }
         }
 

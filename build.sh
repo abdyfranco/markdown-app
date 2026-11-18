@@ -30,10 +30,14 @@ if [[ "${1:-}" == "test" ]]; then
   mkdir -p "$BUILD_DIR"
   echo "› Compiling tests"
   APP_SOURCES=(Sources/App/*.swift)
+  mkdir -p "$OBJ_DIR/strings"
   swiftc -sdk "$SDK" -target "$(uname -m)-apple-macos$DEPLOYMENT_TARGET" -swift-version 5 -parse-as-library \
     -module-name Markdown Sources/Shared/*.swift ${APP_SOURCES:#*/main.swift} Tests/*.swift \
+    -emit-localized-strings -emit-localized-strings-path "$OBJ_DIR/strings" \
     -o "$BUILD_DIR/EditorTests"
   "$BUILD_DIR/EditorTests"
+  echo "Localizations"
+  swift Tools/CheckLocalizations.swift "$OBJ_DIR/strings" Support/Localization/App
   exit $?
 fi
 
@@ -64,6 +68,8 @@ compile "$APPEX/Contents/MacOS/MarkdownQuickLook" \
   Sources/Shared/*.swift Sources/QuickLook/*.swift -framework QuickLookUI \
   -Xlinker -e -Xlinker _NSExtensionMain
 cp Support/QuickLook-Info.plist "$APPEX/Contents/Info.plist"
+mkdir -p "$APPEX/Contents/Resources"
+ditto Support/Localization/QuickLook "$APPEX/Contents/Resources"
 codesign --force --sign - --timestamp=none --entitlements Support/Extension.entitlements "$APPEX"
 
 echo "› Compiling $APP_NAME (${(j:, :)ARCHS})"
@@ -71,6 +77,8 @@ compile "$APP/Contents/MacOS/Markdown" -module-name Markdown Sources/Shared/*.sw
 
 cp Support/App-Info.plist "$APP/Contents/Info.plist"
 printf 'APPL????' > "$APP/Contents/PkgInfo"
+# Translations: one <language>.lproj folder per language.
+ditto Support/Localization/App "$APP/Contents/Resources"
 
 # App icon. Support/AppIcon.icon is an Icon Composer document (Liquid Glass,
 # with Default, Dark, Clear and Tinted appearances). Compiling it needs Xcode's

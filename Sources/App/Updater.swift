@@ -67,7 +67,7 @@ enum UpdateError: LocalizedError {
 
     var errorDescription: String? {
         switch self {
-        case .server(let status): "GitHub responded with an error (HTTP \(status))."
+        case .server(let status): String(localized: "GitHub responded with an error (HTTP \(status)).")
         case .invalidDownload(let reason), .installFailed(let reason): reason
         }
     }
@@ -220,17 +220,18 @@ final class Updater: NSObject {
 
         let alert = NSAlert()
         alert.icon = NSApp.applicationIconImage
-        alert.messageText = "A new version of Markdown is available"
+        let newVersion = update.version.description, currentVersion = AppVersion.current.description
+        alert.messageText = String(localized: "A new version of Markdown is available")
         alert.informativeText = canInstall
-            ? "Markdown \(update.version) is available. You have \(AppVersion.current). Would you like to install it now? Markdown will restart when it's done."
-            : "Markdown \(update.version) is available. You have \(AppVersion.current)."
+            ? String(localized: "Markdown \(newVersion) is available. You have \(currentVersion). Would you like to install it now? Markdown will restart when it's done.")
+            : String(localized: "Markdown \(newVersion) is available. You have \(currentVersion).")
         if !update.notes.isEmpty {
             alert.accessoryView = Self.notesView(update.notes)
         }
-        alert.addButton(withTitle: canInstall ? "Install Update" : "View Release")
-        let later = alert.addButton(withTitle: "Later")
+        alert.addButton(withTitle: canInstall ? String(localized: "Install Update") : String(localized: "View Release"))
+        let later = alert.addButton(withTitle: String(localized: "Later"))
         later.keyEquivalent = "\u{1b}"
-        alert.addButton(withTitle: "Skip This Version")
+        alert.addButton(withTitle: String(localized: "Skip This Version"))
 
         switch alert.runModal() {
         case .alertFirstButtonReturn:
@@ -261,8 +262,9 @@ final class Updater: NSObject {
         NSApp.activate()
         let alert = NSAlert()
         alert.icon = NSApp.applicationIconImage
-        alert.messageText = "You're up to date"
-        alert.informativeText = "Markdown \(AppVersion.current) is the newest version available."
+        let version = AppVersion.current.description
+        alert.messageText = String(localized: "You're up to date")
+        alert.informativeText = String(localized: "Markdown \(version) is the newest version available.")
         alert.runModal()
     }
 
@@ -270,7 +272,7 @@ final class Updater: NSObject {
         NSApp.activate()
         let alert = NSAlert()
         alert.alertStyle = .warning
-        alert.messageText = "Couldn't check for updates"
+        alert.messageText = String(localized: "Couldn't check for updates")
         alert.informativeText = error.localizedDescription
         alert.runModal()
     }
@@ -279,10 +281,12 @@ final class Updater: NSObject {
         NSApp.activate()
         let alert = NSAlert()
         alert.alertStyle = .warning
-        alert.messageText = "Couldn't install the update"
-        alert.informativeText = "\(error.localizedDescription)\n\nYou can download Markdown \(update.version) from GitHub instead."
-        alert.addButton(withTitle: "Open GitHub")
-        alert.addButton(withTitle: "Close")
+        alert.messageText = String(localized: "Couldn't install the update")
+        let version = update.version.description
+        alert.informativeText = error.localizedDescription + "\n\n"
+            + String(localized: "You can download Markdown \(version) from GitHub instead.")
+        alert.addButton(withTitle: String(localized: "Open GitHub"))
+        alert.addButton(withTitle: String(localized: "Close"))
         if alert.runModal() == .alertFirstButtonReturn {
             NSWorkspace.shared.open(update.pageURL)
         }
@@ -365,7 +369,8 @@ final class UpdateInstaller: NSObject {
     func start() {
         guard let url = update.downloadURL else { return }
         showWindow()
-        progress.message = "Downloading Markdown \(update.version)…"
+        let version = update.version.description
+        progress.message = String(localized: "Downloading Markdown \(version)…")
 
         try? FileManager.default.createDirectory(at: workDirectory, withIntermediateDirectories: true)
         let destination = workDirectory.appendingPathComponent("Markdown-\(update.version).dmg")
@@ -415,7 +420,8 @@ final class UpdateInstaller: NSObject {
             if (error as? URLError)?.code == .cancelled { return }
             fail(error)
         case .success(let dmg):
-            progress.message = "Installing Markdown \(update.version)…"
+            let versionText = update.version.description
+            progress.message = String(localized: "Installing Markdown \(versionText)…")
             progress.fraction = nil
             progress.canCancel = false
             let target = Bundle.main.bundleURL
@@ -445,16 +451,18 @@ final class UpdateInstaller: NSObject {
         let apps = (try FileManager.default.contentsOfDirectory(at: mountPoint, includingPropertiesForKeys: nil))
             .filter { $0.pathExtension == "app" }
         guard let app = apps.first, let bundle = Bundle(url: app), bundle.bundleIdentifier == bundleID else {
-            throw UpdateError.invalidDownload("The downloaded disk image doesn't contain Markdown.")
+            throw UpdateError.invalidDownload(String(localized: "The downloaded disk image doesn't contain Markdown."))
         }
         let found = AppVersion(bundle.infoDictionary?["CFBundleShortVersionString"] as? String ?? "")
         guard let found, found == version else {
-            throw UpdateError.invalidDownload("The downloaded app is version \(found?.description ?? "unknown"), not \(version).")
+            let foundVersion = found?.description ?? String(localized: "unknown")
+            let expected = version.description
+            throw UpdateError.invalidDownload(String(localized: "The downloaded app is version \(foundVersion), not \(expected)."))
         }
         do {
             try run("/usr/bin/codesign", ["--verify", "--strict", app.path])
         } catch {
-            throw UpdateError.invalidDownload("The downloaded app's code signature isn't valid.")
+            throw UpdateError.invalidDownload(String(localized: "The downloaded app's code signature isn't valid."))
         }
 
         let staged = target.deletingLastPathComponent()
@@ -474,10 +482,11 @@ final class UpdateInstaller: NSObject {
             helper.arguments = [script.path, String(ProcessInfo.processInfo.processIdentifier), target.path, staged.path]
             try helper.run()
         } catch {
-            fail(UpdateError.installFailed("Couldn't start the installer: \(error.localizedDescription)"))
+            let reason = error.localizedDescription
+            fail(UpdateError.installFailed(String(localized: "Couldn't start the installer: \(reason)")))
             return
         }
-        progress.message = "Restarting Markdown…"
+        progress.message = String(localized: "Restarting Markdown…")
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
             NSApp.terminate(nil)
         }
@@ -516,7 +525,9 @@ final class UpdateInstaller: NSObject {
         try process.run()
         process.waitUntilExit()
         guard process.terminationStatus == 0 else {
-            throw UpdateError.installFailed("\(URL(fileURLWithPath: tool).lastPathComponent) failed (\(process.terminationStatus)).")
+            let name = URL(fileURLWithPath: tool).lastPathComponent
+            let status = Int(process.terminationStatus)
+            throw UpdateError.installFailed(String(localized: "\(name) failed (\(status))."))
         }
     }
 
@@ -539,7 +550,7 @@ final class UpdateInstaller: NSObject {
         let hosting = NSHostingController(rootView: view)
         hosting.sizingOptions = [.preferredContentSize]
         let window = NSWindow(contentViewController: hosting)
-        window.title = "Updating Markdown"
+        window.title = String(localized: "Updating Markdown")
         window.styleMask = [.titled]
         window.isReleasedWhenClosed = false
         window.center()

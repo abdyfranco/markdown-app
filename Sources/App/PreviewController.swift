@@ -16,17 +16,23 @@ final class PreviewController: NSObject, WKNavigationDelegate {
         didSet { if webView.pageZoom != zoom { webView.pageZoom = zoom } }
     }
 
-    private static let appCSS = """
-    .markdown-body { padding-top: 36px; }
-    #content:empty::before {
-      content: "Nothing to preview yet";
-      display: block;
-      margin-top: 32vh;
-      text-align: center;
-      font-size: 15px;
-      color: var(--tertiary);
+    private static var appCSS: String {
+        // Shown when the document is empty, in the user's language.
+        let empty = String(localized: "Nothing to preview yet")
+            .replacingOccurrences(of: "\\", with: "\\\\")
+            .replacingOccurrences(of: "\"", with: "\\\"")
+        return """
+        .markdown-body { padding-top: 36px; }
+        #content:empty::before {
+          content: "\(empty)";
+          display: block;
+          margin-top: 32vh;
+          text-align: center;
+          font-size: 15px;
+          color: var(--tertiary);
+        }
+        """
     }
-    """
 
     init(baseURL: URL?) {
         self.baseURL = baseURL
@@ -43,7 +49,7 @@ final class PreviewController: NSObject, WKNavigationDelegate {
         webView.setValue(false, forKey: "drawsBackground")
         webView.allowsMagnification = true
         webView.allowsBackForwardNavigationGestures = false
-        webView.setAccessibilityLabel("Preview")
+        webView.setAccessibilityLabel(String(localized: "Preview"))
         loadShell()
     }
 

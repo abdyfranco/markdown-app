@@ -15,6 +15,7 @@
 - **Export as PDF** or HTML, and print
 - **QuickLook**: press Space on a `.md` file in Finder to see it rendered
 - **Automatic updates** from this repository's releases
+- In English, Spanish, French, German, Italian, Portuguese (Brazil), Japanese, Korean and Chinese (Simplified), following your Mac's language
 
 ## Install
 
@@ -37,8 +38,10 @@ Then build:
 |:--|:--|
 | `./build.sh` | Builds the universal app and `build/Markdown-<version>.dmg` |
 | `./build.sh install` | Also installs to `~/Applications` and registers QuickLook |
-| `./build.sh test` | Runs the tests |
+| `./build.sh test` | Runs the tests and checks that every string is translated |
 | `./Tools/make-icon.sh` | Re-renders the icon files from `Support/AppIcon.icon` |
+
+Translations live in `Support/Localization/App/<language>.lproj/Localizable.strings`, keyed by the English text. To add a language, add a folder with every key translated.
 
 ## Release
 

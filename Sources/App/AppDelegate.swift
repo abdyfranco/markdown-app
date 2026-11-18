@@ -32,7 +32,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             .foregroundColor: NSColor.secondaryLabelColor,
             .paragraphStyle: paragraph,
         ]
-        let credits = NSMutableAttributedString(string: "Created by ", attributes: body)
+        let credits = NSMutableAttributedString(string: String(localized: "Created by "), attributes: body)
         credits.append(NSAttributedString(string: AppInfo.author, attributes: body.merging([
             .font: NSFont.systemFont(ofSize: NSFont.smallSystemFontSize, weight: .semibold),
             .foregroundColor: NSColor.labelColor,
@@ -51,7 +51,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             let hosting = NSHostingController(rootView: SettingsView())
             hosting.sizingOptions = [.preferredContentSize]
             let window = NSWindow(contentViewController: hosting)
-            window.title = "Settings"
+            window.title = String(localized: "Settings")
             window.styleMask = [.titled, .closable]
             window.isReleasedWhenClosed = false
             window.center()

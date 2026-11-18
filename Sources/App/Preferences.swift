@@ -7,9 +7,9 @@ enum ViewMode: String, CaseIterable, Identifiable {
 
     var title: String {
         switch self {
-        case .edit: "Editor"
-        case .split: "Split"
-        case .preview: "Preview"
+        case .edit: String(localized: "Editor")
+        case .split: String(localized: "Split")
+        case .preview: String(localized: "Preview")
         }
     }
 

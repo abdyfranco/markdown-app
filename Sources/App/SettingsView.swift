@@ -49,7 +49,7 @@ struct SettingsView: View {
                     Text("Select a Markdown file in Finder and press Space.")
                 }
                 LabeledContent {
-                    Button(isDefaultApp ? "Default" : "Make Default") { makeDefault() }
+                    Button(isDefaultApp ? String(localized: "Default") : String(localized: "Make Default")) { makeDefault() }
                         .disabled(isDefaultApp)
                 } label: {
                     Text("Default app for .md files")
@@ -77,9 +77,9 @@ struct SettingsView: View {
     }
 
     private var lastCheckedDescription: String {
-        guard lastUpdateCheck > 0 else { return "Not checked yet" }
+        guard lastUpdateCheck > 0 else { return String(localized: "Not checked yet") }
         let date = Date(timeIntervalSince1970: lastUpdateCheck)
-        return "Last checked " + date.formatted(.relative(presentation: .named))
+        return String(localized: "Last checked \(date.formatted(.relative(presentation: .named)))")
     }
 
     private func refreshDefault() {

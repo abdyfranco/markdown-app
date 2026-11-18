@@ -56,7 +56,7 @@ extension DocumentWindowController: NSToolbarDelegate, NSSearchFieldDelegate {
             target: self,
             action: #selector(modeControlChanged(_:))
         )
-        group.label = "View"
+        group.label = String(localized: "View")
         group.controlRepresentation = .expanded
         for (item, mode) in zip(group.subitems, modes) {
             item.toolTip = "\(mode.title) (⌘\(mode.shortcut))"
@@ -69,7 +69,7 @@ extension DocumentWindowController: NSToolbarDelegate, NSSearchFieldDelegate {
     @MainActor
     private func makeFormatItem() -> NSToolbarItem {
         typealias T = MarkdownTextView
-        let entries: [(String?, String, Selector)] = [
+        let entries: [(String.LocalizationValue?, String, Selector)] = [
             ("Bold", "bold", #selector(T.mdBold(_:))),
             ("Italic", "italic", #selector(T.mdItalic(_:))),
             ("Strikethrough", "strikethrough", #selector(T.mdStrikethrough(_:))),
@@ -89,7 +89,7 @@ extension DocumentWindowController: NSToolbarDelegate, NSSearchFieldDelegate {
         ]
         let menu = NSMenu()
         for (title, image, action) in entries {
-            guard let title else { menu.addItem(.separator()); continue }
+            guard let title = title.map({ String(localized: $0) }) else { menu.addItem(.separator()); continue }
             let item = NSMenuItem(title: title, action: #selector(applyFormat(_:)), keyEquivalent: "")
             item.target = self
             item.image = symbol(image, title)
@@ -97,9 +97,9 @@ extension DocumentWindowController: NSToolbarDelegate, NSSearchFieldDelegate {
             menu.addItem(item)
         }
         let item = NSMenuToolbarItem(itemIdentifier: ToolbarID.format)
-        item.label = "Format"
-        item.toolTip = "Format"
-        item.image = symbol("textformat", "Format")
+        item.label = String(localized: "Format")
+        item.toolTip = item.label
+        item.image = symbol("textformat", item.label)
         item.showsIndicator = false
         item.menu = menu
         item.isEnabled = model.mode != .preview
@@ -110,7 +110,7 @@ extension DocumentWindowController: NSToolbarDelegate, NSSearchFieldDelegate {
     @MainActor
     private func makeShareItem() -> NSToolbarItem {
         let menu = NSMenu()
-        let entries: [(String?, String, Selector)] = [
+        let entries: [(String.LocalizationValue?, String, Selector)] = [
             ("Export as PDF…", "doc.text", #selector(MarkdownDocument.exportPDF(_:))),
             ("Export as HTML…", "chevron.left.forwardslash.chevron.right", #selector(MarkdownDocument.exportHTML(_:))),
             ("Copy HTML", "doc.on.doc", #selector(MarkdownDocument.copyHTML(_:))),
@@ -118,16 +118,16 @@ extension DocumentWindowController: NSToolbarDelegate, NSSearchFieldDelegate {
             ("Print…", "printer", #selector(NSDocument.printDocument(_:))),
         ]
         for (title, image, action) in entries {
-            guard let title else { menu.addItem(.separator()); continue }
+            guard let title = title.map({ String(localized: $0) }) else { menu.addItem(.separator()); continue }
             let item = NSMenuItem(title: title, action: action, keyEquivalent: "")
             item.target = model.document
             item.image = symbol(image, title)
             menu.addItem(item)
         }
         let item = NSMenuToolbarItem(itemIdentifier: ToolbarID.share)
-        item.label = "Share"
-        item.toolTip = "Export and print"
-        item.image = symbol("square.and.arrow.up", "Share")
+        item.label = String(localized: "Share")
+        item.toolTip = String(localized: "Export and print")
+        item.image = symbol("square.and.arrow.up", item.label)
         item.showsIndicator = false
         item.menu = menu
         return item
@@ -142,10 +142,10 @@ extension DocumentWindowController: NSToolbarDelegate, NSSearchFieldDelegate {
     @MainActor
     private func makeSearchItem() -> NSToolbarItem {
         let item = NSSearchToolbarItem(itemIdentifier: ToolbarID.search)
-        item.label = "Search"
+        item.label = String(localized: "Search")
         let field = ExpandingSearchField()
         item.searchField = field
-        field.placeholderString = "Search"
+        field.placeholderString = item.label
         field.sendsSearchStringImmediately = true
         field.target = self
         field.action = #selector(searchFieldChanged(_:))
