@@ -10,6 +10,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         NSApp.mainMenu = MainMenu.make()
     }
 
+    func applicationDidFinishLaunching(_ notification: Notification) {
+        Updater.shared.start()
+    }
+
     func applicationShouldOpenUntitledFile(_ sender: NSApplication) -> Bool { true }
 
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool { false }

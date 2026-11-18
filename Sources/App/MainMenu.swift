@@ -1,6 +1,7 @@
 import AppKit
 
 /// Builds the menu bar in code (there's no nib in this project).
+@MainActor
 enum MainMenu {
     static func make() -> NSMenu {
         let main = NSMenu()
@@ -23,6 +24,7 @@ enum MainMenu {
     private static func appMenu() -> NSMenu {
         let menu = NSMenu(title: appName)
         menu.addItem("About \(appName)", #selector(AppDelegate.showAbout(_:)))
+        menu.addItem("Check for Updates…", #selector(Updater.checkForUpdates(_:))).target = Updater.shared
         menu.addItem(.separator())
         menu.addItem("Settings…", #selector(AppDelegate.showSettings(_:)), ",")
         menu.addItem(.separator())

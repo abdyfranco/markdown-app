@@ -96,6 +96,21 @@ enum EditorTests {
         let script = MarkdownRenderer.html(from: "Hi <b>there</b> & `<x>`")
         check("escaping", script.contains("&amp;") && script.contains("<code>&lt;x&gt;</code>"), script)
 
+        print("Update versions")
+        check("parses v-prefixed tag", AppVersion("v1.2.3")?.components == [1, 2, 3])
+        check("parses bare tag", AppVersion("2.0")?.description == "2.0.0")
+        check("ignores pre-releases", AppVersion("1.3.0-beta.1") == nil)
+        check("ignores non-version tags", AppVersion("latest") == nil && AppVersion("v1..2") == nil)
+        check("numeric, not text, order", AppVersion("1.10.0")! > AppVersion("1.9.9")!)
+        check("1.0 equals 1.0.0", AppVersion("1.0")! == AppVersion("1.0.0")!)
+        check("patch is newer", AppVersion("v1.0.1")! > AppVersion("1.0.0")!)
+        let newest = AppVersion.newest(in: ["v1.0.0", "v1.2.0-rc1", "nightly", "v1.1.5", "1.1.10"])
+        check("newest release tag", newest?.tag == "1.1.10", String(describing: newest?.tag))
+        check("no version tags", AppVersion.newest(in: ["main", "docs"]) == nil)
+        check("download must be https", Updater.isTrusted(URL(string: "https://github.com/a.dmg")!)
+              && !Updater.isTrusted(URL(string: "http://example.com/a.dmg")!)
+              && Updater.isTrusted(URL(string: "http://127.0.0.1:8000/a.dmg")!))
+
         print(failures == 0 ? "All tests passed" : "\(failures) test(s) failed")
         exit(failures == 0 ? 0 : 1)
     }

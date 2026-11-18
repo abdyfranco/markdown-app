@@ -31,6 +31,7 @@ Created by Abdy Franco and released under the [MIT License](LICENSE.md).
   - All of these work from any view.
 - **Proper documents.** Autosave, versions (Revert To), Rename and Move, tabs, Open Recent, and detection of changes made by other apps.
 - **QuickLook preview.** Space in Finder renders the file with the same stylesheet as the app, in light and dark.
+- **Updates from GitHub.** Markdown checks this repository's tags once a day, and whenever you choose **Markdown → Check for Updates…**. When there's a newer version, it shows the release notes and offers **Install Update**, **Later** or **Skip This Version**. Installing downloads the release's DMG, checks it, swaps the app in place and restarts. You can turn automatic checks off in **Settings → Updates**.
 
 ## Building from scratch
 
@@ -145,6 +146,31 @@ Select a Markdown file in Finder and press **Space**. You should see it rendered
 
 The build is signed ad hoc, which is fine on the Mac that built it. On other Macs, Gatekeeper blocks ad-hoc apps from the internet. To share the app widely, sign it with a Developer ID certificate and notarize it.
 
+### Publishing a release
+
+The updater looks at the repository's tags and picks the highest version, such as `v1.0.1` or `1.0.1`; pre-release tags like `v1.1.0-beta` are ignored. It then installs the `.dmg` attached to that tag's GitHub release. To publish a version:
+
+1. Set the new version in `CFBundleShortVersionString` and `CFBundleVersion`, in both `Support/App-Info.plist` and `Support/QuickLook-Info.plist`.
+2. Build it, which also produces `build/Markdown-<version>.dmg`:
+
+   ```bash
+   ./build.sh
+   ```
+
+3. Commit, then tag the version and push the tag:
+
+   ```bash
+   git tag v1.0.1 && git push origin v1.0.1
+   ```
+
+4. Create a release for the tag with the DMG attached. The release notes appear in the update prompt.
+
+   ```bash
+   gh release create v1.0.1 build/Markdown-1.0.1.dmg --title "Markdown 1.0.1" --notes "What changed"
+   ```
+
+If the newest tag has no release or no DMG, the prompt offers **View Release** instead of installing. Installing in place also needs the app to be in a folder it can write to, such as `~/Applications`, or `/Applications` for an administrator.
+
 ## After installing
 
 ### Make it the default Markdown app
@@ -204,6 +230,7 @@ Sources/
                   MarkdownTextView / MarkdownHighlighter   editor, smart lists, formatting, highlighting
                   PreviewController      WKWebView preview (content JavaScript disabled)
                   PrintRenderer          offscreen page for printing and PDF export
+                  Updater                update checks against GitHub tags, prompt and installer
                   MainMenu, SettingsView, Preferences, MarkdownGuide, AppInfo (author & copyright)
   QuickLook/    Data-based QuickLook preview extension
 Support/        Info.plists, entitlements, AppIcon.icon (Icon Composer), fallback AppIcon.icns

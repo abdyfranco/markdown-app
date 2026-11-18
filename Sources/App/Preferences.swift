@@ -67,6 +67,9 @@ enum Preferences {
     static let showWordCount = "showWordCount"
     static let checkSpelling = "checkSpelling"
     static let statusStyle = "statusStyle"
+    static let checkForUpdates = "checkForUpdates"
+    static let lastUpdateCheck = "lastUpdateCheck"
+    static let skippedVersion = "skippedVersion"
 
     static func registerDefaults() {
         UserDefaults.standard.register(defaults: [
@@ -77,6 +80,7 @@ enum Preferences {
             showWordCount: true,
             checkSpelling: true,
             statusStyle: 0,
+            checkForUpdates: true,
         ])
     }
 

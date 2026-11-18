@@ -9,6 +9,8 @@ struct SettingsView: View {
     @AppStorage(Preferences.checkSpelling) private var checkSpelling = true
     @AppStorage(Preferences.openMode) private var openMode = ViewMode.preview.rawValue
     @AppStorage(Preferences.showWordCount) private var showWordCount = true
+    @AppStorage(Preferences.checkForUpdates) private var checkForUpdates = true
+    @AppStorage(Preferences.lastUpdateCheck) private var lastUpdateCheck = 0.0
     @State private var isDefaultApp = false
 
     private let markdown = UTType("net.daringfireball.markdown") ?? .plainText
@@ -56,12 +58,28 @@ struct SettingsView: View {
             } header: {
                 Text("System")
             }
+
+            Section("Updates") {
+                Toggle("Check for updates automatically", isOn: $checkForUpdates)
+                LabeledContent {
+                    Button("Check Now") { Updater.shared.checkForUpdates(nil) }
+                } label: {
+                    Text(verbatim: "Markdown \(AppVersion.current)")
+                    Text(lastCheckedDescription)
+                }
+            }
         }
         .formStyle(.grouped)
         .scrollDisabled(true)
         .frame(width: 480)
         .fixedSize(horizontal: false, vertical: true)
         .onAppear(perform: refreshDefault)
+    }
+
+    private var lastCheckedDescription: String {
+        guard lastUpdateCheck > 0 else { return "Not checked yet" }
+        let date = Date(timeIntervalSince1970: lastUpdateCheck)
+        return "Last checked " + date.formatted(.relative(presentation: .named))
     }
 
     private func refreshDefault() {
