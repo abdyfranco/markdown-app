@@ -1,0 +1,22 @@
+# Build output: ./build.sh and Tools/make-icon.sh write everything here
+# (the app, the DMG, test runner, object slices and icon previews).
+/build/
+
+# Packaged and intermediate artifacts, wherever they end up
+*.dmg
+*.o
+*.dSYM/
+*.iconset/
+
+# Xcode and Swift Package Manager leftovers, if the sources are opened there
+DerivedData/
+xcuserdata/
+*.xcuserstate
+.swiftpm/
+.build/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
