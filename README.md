@@ -6,6 +6,13 @@
 
 <p align="center">A native Markdown reader and editor for macOS, with a Liquid Glass design.</p>
 
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/screenshot-dark.png">
+    <img src="docs/screenshot-light.png" width="760" alt="Markdown in Split view: the Markdown source on the left and the rendered preview on the right">
+  </picture>
+</p>
+
 ## Features
 
 - **Editor, Split and Preview** views (⌘1 / ⌘2 / ⌘3), with a live preview that follows the editor as you scroll
