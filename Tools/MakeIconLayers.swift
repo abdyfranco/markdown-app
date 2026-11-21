@@ -1,3 +1,10 @@
+//
+//  MakeIconLayers.swift
+//  Markdown
+//
+//  Copyright © 2026 Advandz Technologies, LLC.
+//
+
 // Generates the vector layers for Support/AppIcon.icon (Icon Composer).
 //   swift Tools/MakeIconLayers.swift Support/AppIcon.icon/Assets
 //

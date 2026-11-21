@@ -1,3 +1,10 @@
+//
+//  MarkdownHighlighter.swift
+//  Markdown
+//
+//  Copyright © 2026 Advandz Technologies, LLC.
+//
+
 import AppKit
 
 /// Lightweight, regex-based Markdown syntax highlighting for the editor.

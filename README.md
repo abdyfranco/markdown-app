@@ -65,4 +65,4 @@ The app finds the newest version tag and offers to install the DMG attached to i
 
 ## License
 
-Copyright © 2026 Abdy Franco. Released under the [MIT License](LICENSE.md).
+Copyright © 2026 Advandz Technologies, LLC. Released under the [MIT License](LICENSE.md).

@@ -1,4 +1,11 @@
 #!/bin/zsh
+#
+#  build.sh
+#  Markdown
+#
+#  Copyright © 2026 Advandz Technologies, LLC.
+#
+
 # Builds "Markdown.app" (with its QuickLook preview extension) as a universal
 # app for Apple silicon and Intel, and packs it into a DMG. Uses Apple's
 # command-line tools only; there is no Xcode project.

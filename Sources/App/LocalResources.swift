@@ -1,3 +1,10 @@
+//
+//  LocalResources.swift
+//  Markdown
+//
+//  Copyright © 2026 Advandz Technologies, LLC.
+//
+
 import Foundation
 import UniformTypeIdentifiers
 import WebKit

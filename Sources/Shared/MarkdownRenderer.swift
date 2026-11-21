@@ -1,3 +1,10 @@
+//
+//  MarkdownRenderer.swift
+//  Markdown
+//
+//  Copyright © 2026 Advandz Technologies, LLC.
+//
+
 import Foundation
 
 /// Converts Markdown into HTML using Foundation's CommonMark/GFM parser

@@ -1,3 +1,10 @@
+//
+//  MarkdownDocument.swift
+//  Markdown
+//
+//  Copyright © 2026 Advandz Technologies, LLC.
+//
+
 import AppKit
 import UniformTypeIdentifiers
 

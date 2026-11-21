@@ -1,3 +1,10 @@
+//
+//  MarkdownTextView.swift
+//  Markdown
+//
+//  Copyright © 2026 Advandz Technologies, LLC.
+//
+
 import AppKit
 
 /// Plain-text Markdown editor with live syntax highlighting, a centred

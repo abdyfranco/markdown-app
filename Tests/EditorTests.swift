@@ -1,3 +1,10 @@
+//
+//  EditorTests.swift
+//  Markdown
+//
+//  Copyright © 2026 Advandz Technologies, LLC.
+//
+
 // Headless checks for editor logic and rendering. Run with ./build.sh test
 import AppKit
 

@@ -1,3 +1,10 @@
+//
+//  FrameIcon.swift
+//  Markdown
+//
+//  Copyright © 2026 Advandz Technologies, LLC.
+//
+
 // Places a full-bleed icon rendering (from Icon Composer's icontool) on the
 // macOS app-icon grid: an 824 pt body centred on a 1024 pt canvas, with the
 // soft drop shadow macOS icons carry.

@@ -1,3 +1,10 @@
+//
+//  PreviewProvider.swift
+//  Markdown
+//
+//  Copyright © 2026 Advandz Technologies, LLC.
+//
+
 import Cocoa
 import QuickLookUI
 import UniformTypeIdentifiers

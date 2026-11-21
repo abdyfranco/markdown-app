@@ -1,3 +1,10 @@
+//
+//  MainMenu.swift
+//  Markdown
+//
+//  Copyright © 2026 Advandz Technologies, LLC.
+//
+
 import AppKit
 
 /// Builds the menu bar in code (there's no nib in this project).

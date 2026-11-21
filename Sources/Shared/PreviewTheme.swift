@@ -1,3 +1,10 @@
+//
+//  PreviewTheme.swift
+//  Markdown
+//
+//  Copyright © 2026 Advandz Technologies, LLC.
+//
+
 import Foundation
 
 /// The HTML page and stylesheet used to present rendered Markdown,

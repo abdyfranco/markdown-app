@@ -1,3 +1,10 @@
+//
+//  CheckLocalizations.swift
+//  Markdown
+//
+//  Copyright © 2026 Advandz Technologies, LLC.
+//
+
 // Checks the translations against the strings the code actually uses.
 //
 //   swift Tools/CheckLocalizations.swift <stringsdata folder> <Support/Localization/App>

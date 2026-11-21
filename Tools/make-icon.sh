@@ -1,4 +1,11 @@
 #!/bin/zsh
+#
+#  make-icon.sh
+#  Markdown
+#
+#  Copyright © 2026 Advandz Technologies, LLC.
+#
+
 # Rebuilds the fallback icon and previews from the Icon Composer document.
 #
 #   Support/AppIcon.icon   the source of truth (open it in Icon Composer)

@@ -1,3 +1,10 @@
+//
+//  MarkdownGuide.swift
+//  Markdown
+//
+//  Copyright © 2026 Advandz Technologies, LLC.
+//
+
 enum MarkdownGuide {
     static let text = """
     # Markdown Guide
