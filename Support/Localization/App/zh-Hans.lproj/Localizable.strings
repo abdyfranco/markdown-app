@@ -39,7 +39,6 @@
 "Couldn't check for updates" = "无法检查更新";
 "Couldn't install the update" = "无法安装更新";
 "Couldn't start the installer: %@" = "无法启动安装器：%@";
-"Created by " = "作者：";
 "Cut" = "剪切";
 "Default" = "默认";
 "Default app for .md files" = ".md文件的默认App";

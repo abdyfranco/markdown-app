@@ -39,7 +39,6 @@
 "Couldn't check for updates" = "Suche nach Updates fehlgeschlagen";
 "Couldn't install the update" = "Update konnte nicht installiert werden";
 "Couldn't start the installer: %@" = "Das Installationsprogramm konnte nicht gestartet werden: %@";
-"Created by " = "Erstellt von ";
 "Cut" = "Ausschneiden";
 "Default" = "Standard";
 "Default app for .md files" = "Standard-App für .md-Dateien";

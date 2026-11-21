@@ -39,7 +39,6 @@
 "Couldn't check for updates" = "Couldn't check for updates";
 "Couldn't install the update" = "Couldn't install the update";
 "Couldn't start the installer: %@" = "Couldn't start the installer: %@";
-"Created by " = "Created by ";
 "Cut" = "Cut";
 "Default" = "Default";
 "Default app for .md files" = "Default app for .md files";

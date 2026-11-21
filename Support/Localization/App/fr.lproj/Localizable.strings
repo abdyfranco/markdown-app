@@ -39,7 +39,6 @@
 "Couldn't check for updates" = "Impossible de rechercher les mises à jour";
 "Couldn't install the update" = "Impossible d’installer la mise à jour";
 "Couldn't start the installer: %@" = "Impossible de lancer le programme d’installation : %@";
-"Created by " = "Créé par ";
 "Cut" = "Couper";
 "Default" = "Par défaut";
 "Default app for .md files" = "App par défaut pour les fichiers .md";

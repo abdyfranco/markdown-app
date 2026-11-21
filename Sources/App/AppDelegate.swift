@@ -8,7 +8,7 @@
 import AppKit
 import SwiftUI
 
-final class AppDelegate: NSObject, NSApplicationDelegate {
+final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     private var settingsWindow: NSWindow?
 
     func applicationWillFinishLaunching(_ notification: Notification) {
@@ -30,41 +30,44 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     // MARK: Actions
 
     /// The About panel: name, version and icon come from the bundle; the
-    /// copyright and credits come from `AppInfo`.
+    /// copyright comes from `AppInfo`.
     @objc func showAbout(_ sender: Any?) {
-        let paragraph = NSMutableParagraphStyle()
-        paragraph.alignment = .center
-        let body: [NSAttributedString.Key: Any] = [
-            .font: NSFont.systemFont(ofSize: NSFont.smallSystemFontSize),
-            .foregroundColor: NSColor.secondaryLabelColor,
-            .paragraphStyle: paragraph,
-        ]
-        let credits = NSMutableAttributedString(string: String(localized: "Created by "), attributes: body)
-        credits.append(NSAttributedString(string: AppInfo.author, attributes: body.merging([
-            .font: NSFont.systemFont(ofSize: NSFont.smallSystemFontSize, weight: .semibold),
-            .foregroundColor: NSColor.labelColor,
-        ]) { $1 }))
-
         NSApp.orderFrontStandardAboutPanel(options: [
-            .credits: credits,
             .version: "",   // the build number equals the version; don't repeat it in parentheses
             NSApplication.AboutPanelOptionKey(rawValue: "Copyright"): AppInfo.copyright,
         ])
         NSApp.activate()
     }
 
+    /// Settings is app-modal: the other windows don't take clicks or keys until
+    /// it's closed with its close button, ⌘W or Escape.
     @objc func showSettings(_ sender: Any?) {
-        if settingsWindow == nil {
-            let hosting = NSHostingController(rootView: SettingsView())
-            hosting.sizingOptions = [.preferredContentSize]
-            let window = NSWindow(contentViewController: hosting)
-            window.title = String(localized: "Settings")
-            window.styleMask = [.titled, .closable]
-            window.isReleasedWhenClosed = false
-            window.center()
-            settingsWindow = window
+        let window = settingsWindow ?? makeSettingsWindow()
+        settingsWindow = window
+        guard NSApp.modalWindow !== window else {
+            window.makeKeyAndOrderFront(sender)
+            return
         }
-        settingsWindow?.makeKeyAndOrderFront(sender)
+        window.center()
+        NSApp.activate()
+        NSApp.runModal(for: window)   // returns once windowWillClose stops the modal session
+    }
+
+    private func makeSettingsWindow() -> NSWindow {
+        let hosting = NSHostingController(rootView: SettingsView())
+        hosting.sizingOptions = [.preferredContentSize]
+        let window = SettingsWindow(contentViewController: hosting)
+        window.title = String(localized: "Settings")
+        window.styleMask = [.titled, .closable]
+        window.isReleasedWhenClosed = false
+        window.delegate = self
+        return window
+    }
+
+    func windowWillClose(_ notification: Notification) {
+        guard let window = notification.object as? NSWindow,
+              window === settingsWindow, NSApp.modalWindow === window else { return }
+        NSApp.stopModal()
     }
 
     @objc func showMarkdownGuide(_ sender: Any?) {
@@ -76,5 +79,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         controller.addDocument(document)
         document.makeWindowControllers()
         document.showWindows()
+    }
+}
+
+/// The Settings window, which closes on Escape like other modal windows.
+private final class SettingsWindow: NSWindow {
+    override func cancelOperation(_ sender: Any?) {
+        performClose(sender)
     }
 }

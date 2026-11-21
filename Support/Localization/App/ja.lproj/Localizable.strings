@@ -39,7 +39,6 @@
 "Couldn't check for updates" = "アップデートを確認できませんでした";
 "Couldn't install the update" = "アップデートをインストールできませんでした";
 "Couldn't start the installer: %@" = "インストーラを起動できませんでした: %@";
-"Created by " = "作成者: ";
 "Cut" = "カット";
 "Default" = "デフォルト";
 "Default app for .md files" = ".mdファイルのデフォルトApp";
