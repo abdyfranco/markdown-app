@@ -10,6 +10,12 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 struct SettingsView: View {
+    /// Closes Settings (the Done button).
+    let done: () -> Void
+    /// A fixed height that makes the form scroll, for windows too short to show
+    /// it all; nil sizes Settings to fit its content.
+    var height: CGFloat? = nil
+
     @AppStorage(Preferences.editorFont) private var font = EditorFont.monospaced.rawValue
     @AppStorage(Preferences.fontSize) private var fontSize = 14.0
     @AppStorage(Preferences.limitLineWidth) private var limitLineWidth = true
@@ -23,6 +29,26 @@ struct SettingsView: View {
     private let markdown = UTType("net.daringfireball.markdown") ?? .plainText
 
     var body: some View {
+        let content = VStack(spacing: 0) {
+            form.scrollDisabled(height == nil)
+            HStack {
+                Spacer()
+                Button("Done", action: done)
+                    .keyboardShortcut(.defaultAction)
+            }
+            .padding([.horizontal, .bottom], 20)
+        }
+        .frame(width: 480)
+        .onAppear(perform: refreshDefault)
+
+        if let height {
+            content.frame(height: height)
+        } else {
+            content.fixedSize(horizontal: false, vertical: true)
+        }
+    }
+
+    private var form: some View {
         Form {
             Section("Editor") {
                 Picker("Font", selection: $font) {
@@ -77,10 +103,6 @@ struct SettingsView: View {
             }
         }
         .formStyle(.grouped)
-        .scrollDisabled(true)
-        .frame(width: 480)
-        .fixedSize(horizontal: false, vertical: true)
-        .onAppear(perform: refreshDefault)
     }
 
     private var lastCheckedDescription: String {

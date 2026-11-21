@@ -10,6 +10,7 @@ import SwiftUI
 
 final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     private var settingsWindow: NSWindow?
+    private weak var settingsParent: NSWindow?
 
     func applicationWillFinishLaunching(_ notification: Notification) {
         Preferences.registerDefaults()
@@ -39,27 +40,63 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         NSApp.activate()
     }
 
-    /// Settings is app-modal: the other windows don't take clicks or keys until
-    /// it's closed with its close button, ⌘W or Escape.
+    /// Settings opens as a sheet on the front document window, which it blocks
+    /// until Done, Return, Escape or ⌘W closes it. With no document window open,
+    /// it's a centered app-modal window instead.
     @objc func showSettings(_ sender: Any?) {
-        let window = settingsWindow ?? makeSettingsWindow()
-        settingsWindow = window
-        guard NSApp.modalWindow !== window else {
-            window.makeKeyAndOrderFront(sender)
+        if let window = settingsWindow {   // already open
+            (settingsParent ?? window).makeKeyAndOrderFront(sender)
             return
         }
-        window.center()
-        NSApp.activate()
-        NSApp.runModal(for: window)   // returns once windowWillClose stops the modal session
+        if let parent = frontDocumentWindow() {
+            let window = makeSettingsWindow(maxHeight: parent.contentLayoutRect.height - 24)
+            settingsWindow = window
+            settingsParent = parent
+            parent.makeKeyAndOrderFront(sender)
+            parent.beginSheet(window) { [weak self] _ in
+                self?.settingsWindow = nil
+                self?.settingsParent = nil
+            }
+        } else {
+            let screenHeight = NSScreen.main?.visibleFrame.height ?? 800
+            let window = makeSettingsWindow(maxHeight: screenHeight - 120)
+            settingsWindow = window
+            window.center()
+            NSApp.activate()
+            NSApp.runModal(for: window)   // returns once windowWillClose stops the modal session
+            settingsWindow = nil
+        }
     }
 
-    private func makeSettingsWindow() -> NSWindow {
-        let hosting = NSHostingController(rootView: SettingsView())
+    /// Done, Escape, ⌘W and the close button all end up here.
+    private func closeSettings() {
+        guard let window = settingsWindow else { return }
+        if let parent = window.sheetParent {
+            parent.endSheet(window)
+        } else {
+            window.close()
+        }
+    }
+
+    private func frontDocumentWindow() -> NSWindow? {
+        NSApp.orderedWindows.first {
+            $0.windowController?.document != nil && $0.isVisible && !$0.isMiniaturized
+        }
+    }
+
+    private func makeSettingsWindow(maxHeight: CGFloat) -> NSWindow {
+        let close: () -> Void = { [weak self] in self?.closeSettings() }
+        let hosting = NSHostingController(rootView: SettingsView(done: close))
         hosting.sizingOptions = [.preferredContentSize]
+        if hosting.view.fittingSize.height > maxHeight {
+            // Too tall for the window: scroll the form instead of hanging past its bottom.
+            hosting.rootView = SettingsView(done: close, height: maxHeight)
+        }
         let window = SettingsWindow(contentViewController: hosting)
         window.title = String(localized: "Settings")
         window.styleMask = [.titled, .closable]
         window.isReleasedWhenClosed = false
+        window.dismiss = close
         window.delegate = self
         return window
     }
@@ -82,9 +119,20 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     }
 }
 
-/// The Settings window, which closes on Escape like other modal windows.
+/// The Settings sheet or window: Escape, ⌘W and the close button do what Done does.
 private final class SettingsWindow: NSWindow {
-    override func cancelOperation(_ sender: Any?) {
-        performClose(sender)
+    var dismiss: () -> Void = {}
+
+    override func cancelOperation(_ sender: Any?) { dismiss() }
+    override func performClose(_ sender: Any?) { dismiss() }
+
+    // A sheet doesn't get File > Close, so it handles ⌘W itself.
+    override func performKeyEquivalent(with event: NSEvent) -> Bool {
+        if event.modifierFlags.intersection(.deviceIndependentFlagsMask) == .command,
+           event.charactersIgnoringModifiers == "w" {
+            dismiss()
+            return true
+        }
+        return super.performKeyEquivalent(with: event)
     }
 }
